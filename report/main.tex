@@ -41,7 +41,7 @@
 \maketitle
 \vspace{-0.9cm}
 \begin{center}
-\textbf{Code \& checkpoint:} \todo{GitHub URL} \quad
+\textbf{Code \& checkpoint:} \url{https://github.com/sasukepn1999/itcs6169-assignment1} \quad
 \textbf{Test accuracy:} 93.1$\pm$0.8\% \quad
 \textbf{Selected-model val.\ accuracy:} 93.7$\pm$0.5\%
 \end{center}
@@ -55,7 +55,7 @@
 
 \textbf{Test set} (the 400 labelled test images provided with the assignment). Evaluated only for final models. Our test accuracy, \textbf{93.1$\pm$0.8\%} (seeds 93.5 / 92.0 / 93.8), comes from the final recipe trained on train+val (2{,}400 images) with FixMatch on \texttt{test2}; these models never see the test images (neither labels nor pixels). For reference: best model from scratch 81.8$\pm$1.1\%, starter 42.3\%.
 
-\textbf{\texttt{test2}} (400 unlabelled images): only used as unlabelled FixMatch data (no labels, no accuracy). \textbf{Checkpoints} (\todo{link}): two models with the same recipe. The \emph{clean-test} models (train+val) give the test accuracy above; the \emph{submitted} model, also trained on the labelled test set, produces the \texttt{test2} predictions and has no score (no labelled data left).
+\textbf{\texttt{test2}} (400 unlabelled images): only used as unlabelled FixMatch data (no labels, no accuracy). \textbf{Checkpoints} (\href{https://github.com/sasukepn1999/itcs6169-assignment1/releases/tag/v1.0}{release v1.0}): two models with the same recipe. The \emph{clean-test} models (train+val) give the test accuracy above; the \emph{submitted} model, also trained on the labelled test set, produces the \texttt{test2} predictions and has no score (no labelled data left).
 
 \section{Data Analysis}
 \label{sec:data}
@@ -116,6 +116,6 @@ EfficientNet-B0 (4.0M parameters) initialised from \textbf{ImageNet-1k} (torchvi
 \section{AI + Human}
 \label{sec:ai}
 
-\textcolor{red}{[Draft, please revise in your own words.]} \emph{AI help:} Claude Code built the parallel experiment runner (one process per configuration and seed on 4 GPUs, cached) and checked determinism after every change, making 3-seed comparisons over ${\sim}$250 runs feasible. \emph{Human judgement:} a first resolution sweep favoured $256^2$, and the AI proposed building on it; I chose to fix overfitting first and repeat the sweep, which reversed the conclusion ($256^2$ went from best to worst). Details in \texttt{AI\_USAGE.md}.
+\emph{AI help:} Claude Code help implement all the experiments and draft report. \emph{Human judgement:} I am mainly responsible for designing experiments and hypothesis based on what I observe on the results (e.g., loss curve) and my experience. Details in \texttt{AI\_USAGE.md}.
 
 \end{document}

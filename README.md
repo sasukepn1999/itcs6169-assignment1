@@ -70,7 +70,7 @@ GPU type: re-running a configuration reproduces its accuracy curve exactly.
 ## Checkpoints
 
 The checkpoints (`*.pt`, about 16 MB each, with weights and the full training config) are attached to the
-GitHub release **TBD-link**. Download them into `results/runs/<experiment>/` to use `evaluate.py` and
+GitHub release [v1.0](https://github.com/sasukepn1999/itcs6169-assignment1/releases/tag/v1.0). Download them into `results/runs/<experiment>/` to use `evaluate.py` and
 `predict.py` without retraining.
 
 **File names.** `<config-id>_s<seed>.pt`: the first part is a short hash of the training configuration
