@@ -1,0 +1,10 @@
+# Tested with Python 3.11.17 on NVIDIA H200 (driver 580.173.02, CUDA 13.0 wheels).
+torch==2.14.1
+torchvision==0.29.1
+numpy==2.4.6
+pillow==12.3.0
+matplotlib==3.11.2
+# notebook execution
+nbformat==5.11.1
+nbconvert==7.17.1
+ipykernel
