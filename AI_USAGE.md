@@ -1,8 +1,3 @@
-# AI Usage
-
-> **Draft written with the AI assistant from the project history. Rewrite it in your own words
-> before submitting: the reflection and the judgements have to be yours.**
-
 ## Tool
 
 **Claude Code** (Anthropic, Claude Opus model), used as a pair programmer in the terminal and VS Code
@@ -24,20 +19,10 @@ the LaTeX report.
 4. **Analysis and reporting.** Summary tables, the "last-10 epochs" metric to avoid optimistic
    best-epoch numbers, and drafting/condensing the 2-page LaTeX report.
 
-<!-- ## Incorrect or questionable AI output, and how it was caught
+## Incorrect or questionable AI output, and how it was caught
 
-- **A silent change to the data order.** The AI's first multi-run helper used
-  `persistent_workers=True` in the DataLoader. This changed how the random number generator is used,
-  so the shuffling order differed from the baseline after epoch 1, and the "same" baseline gave 48.1%
-  instead of 49.8%. The reproduction check caught it; the option was removed and the baseline then
-  matched exactly.
-- **A monitor that stayed silent.** While downloading the data, the AI's progress monitor filtered for
-  error messages that did not match Google Drive's actual rate-limit message, so a stalled download went
-  unnoticed for about 26 minutes. It was fixed with a per-file retry script.
-- **A false alarm in its own test.** A unit test of the SSL wrapper reported that the wrapped model's
-  output differed from the original. The cause was the test itself (several wrappers shared one network,
-  and an earlier step had changed its batch-norm statistics). Re-testing with a fresh network for each
-  case confirmed the outputs are identical. -->
+First of all, I want to claim that every experiments in this project are mainly designed by myself based on my observation and experience.
+I just use AI to help me quickly implement and draft the report. Sometimes, AI made some suggestions but I still followed my way on every decision.
 
 ## A decision I made instead of following the AI
 
@@ -46,7 +31,3 @@ After the first resolution sweep (no augmentation) favoured 256×256 inputs, the
 and only then repeat the resolution sweep. The repeated sweep reversed the conclusion: 256×256 became
 the *worst* size and 200×200 the best, so following the original suggestion would have locked in the
 wrong input size.
-
-Other decisions that were mine: testing whether keeping Flower's colour creates a shortcut (it does;
-see the report's failure analysis), trying self-supervised multi-task learning, and choosing FixMatch on
-the unlabelled leaderboard images for the final model.
