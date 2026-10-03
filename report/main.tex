@@ -1,5 +1,6 @@
 \documentclass{article}
 
+\PassOptionsToPackage{numbers,compress}{natbib}
 \usepackage[final]{neurips_2024}
 \makeatletter
 \renewcommand{\@noticestring}{ITCS 6169/8169 Computer Vision -- Assignment 1 Report.}
@@ -49,73 +50,88 @@
 \section{Final Result}
 \label{sec:result}
 
-\textbf{Final model} (Sec.~\ref{sec:recipe}): ImageNet-pretrained EfficientNet-B0, fine-tuned with FixMatch on unlabelled images. We use three sets of images:
+Our final model reaches \textbf{93.1$\pm$0.8\%} accuracy on the test set (seeds: 93.5, 92.0 and 93.8\%), compared with 42.3\% for the starter network. All numbers are the mean and standard deviation over three seeds.
 
-\textbf{Validation set} (480 labelled images held out from the provided training set, seeded split as in the starter). Every design choice is made here, with 3 seeds per configuration; we report best-epoch accuracy and the mean of the last 10 epochs, and select on the latter (the maximum of a noisy curve is optimistic). The final model's supervised part (Exp.~9: trained on the other 1{,}920 images, without FixMatch) reaches \textbf{93.7$\pm$0.5\%}.
+\textbf{Validation strategy.} We split the 2,400 labelled training images once into 1,920 images for training and 480 for validation, with the same seeded split as the starter notebook. Every design decision is made on this validation set, and the test set is only used for the final models. Since validation accuracy fluctuates from epoch to epoch, the best epoch gives an optimistic estimate, so we compare models by the average accuracy over the last 10 epochs. Our selected configuration reaches \textbf{93.7$\pm$0.5\%}.
 
-\textbf{Test set} (the 400 labelled test images provided with the assignment). Evaluated only for final models. Our test accuracy, \textbf{93.1$\pm$0.8\%} (seeds 93.5 / 92.0 / 93.8), comes from the final recipe trained on train+val (2{,}400 images) with FixMatch on \texttt{test2}; these models never see the test images (neither labels nor pixels). For reference: best model from scratch 81.8$\pm$1.1\%, starter 42.3\%.
+\textbf{Test evaluation.} Our final model also uses FixMatch~\cite{fixmatch} on the 400 unlabelled images of \texttt{test2}. For an honest test accuracy, we train it on the training and validation images only, so it never sees the test images (neither labels nor pixels).
 
-\textbf{\texttt{test2}} (400 unlabelled images): only used as unlabelled FixMatch data (no labels, no accuracy). \textbf{Checkpoints} (\href{https://drive.google.com/drive/folders/1q_nvnQqREGNsdmdg47nAFXf_cUVyYREe?usp=sharing}{Google Drive}): two models with the same recipe. The \emph{clean-test} models (train+val) give the test accuracy above; the \emph{submitted} model, also trained on the labelled test set, produces the \texttt{test2} predictions and has no score (no labelled data left).
-
-\section{Data Analysis}
-\label{sec:data}
-
-\textbf{The dataset is perfectly class-balanced} (150 training and 25 test images per class), so no imbalance handling is needed. Images are far larger than $64^2$ (median $256^2$). \textbf{Image format leaks the label} (also on test): eight classes are exactly $256\times256$, Suburb $330\times220$, and \emph{Flower is the only RGB class} and the largest, so colour alone could identify it (Sec.~\ref{sec:failure}).
-
-\section{Baseline and Experimental Journey}
-\label{sec:journey}
-
-\textbf{Starter baseline.} TNet (one $3\times3$ conv, $4\times4$ max-pool, linear classifier; 58K parameters; $64^2$ gray; 20 epochs) reaches 49.8\% validation and 42.3\% test, reproduced exactly by our code. It overfits severely (training loss 0.12; validation loss lowest at epochs 5--7) and is weakest on indoor scenes (30--35\%).
-
-\textbf{Exp.~1: augmentation and training length.} Added one at a time, translation (reflect-pad + random crop) helps most and nearly closes the train/val gap (final loss 1.33/1.49 vs.\ 0.15/2.18); random-resized crops (RRC) and flips help less; rotation, jitter and erasing do not. Combining the three and training longer helps most, with little gain beyond 200 epochs.
-
-\textbf{Exp.~2: learning-rate schedule.} Per-iteration decay (step, cosine, warm-up + cosine, one-cycle) beats constant lr at 200 epochs (63.4--64.1 vs.\ 62.8\%; exponential decay, too early, 60.9\%), and cosine tolerates a larger peak lr ($5\times10^{-3}$: 65.2\%, above constant lr at 600 epochs).
-
-\textbf{Exp.~3: resolution, revisited.} With translation scaled to $s/8$, $200^2$ is best (68.3\%) and $256^2$ is worst (61.9\%), reversing a sweep made before fixing overfitting (TNet's classifier also grows with $s$).
-
-\textbf{Exp.~4: deeper CNNs (from scratch).} TNet's training loss stays near 1.0, so it is capacity-limited. Seven torchvision CNNs from random init (better of two peak lrs kept) reach 81.6--83.5\%, except ConvNeXt-Tiny (74.5\%). \textbf{EfficientNet-B0} (4.0M params) ties ResNet-50 (23.5M) at 83.5\% with $6\times$ fewer parameters, so we keep it; it overfits again (training loss ${\approx}0.01$).
-
-\textbf{Exp.~6--7: self-supervised auxiliary task.} An SSL loss (rotation, SimCLR, SimSiam or MAE-style masked modelling) on the training images does not reduce overfitting (rotation: within noise at $2\times$ cost; others: $-2$ to $-10$), nor on the unlabelled validation images (80.5--82.5\% test vs.\ 81.8\%).
-
-\textbf{Exp.~8: more labels and FixMatch.} Training on all 2{,}400 train+val images raises test accuracy to 84.8$\pm$1.2\% (+3.1); FixMatch on the unlabelled test images (threshold 0.95, $\lambda_u=1$, untuned) then gives 86.9$\pm$1.4\% (+2.1, transductive, ${\approx}1.5$ std). Its pseudo-labels end up covering 98\% of the images, but their accuracy drops from ${\approx}95\%$ to 86--89\% (confirmation bias).
-
-\textbf{Exp.~9: ImageNet initialisation.} Starting from ImageNet-1k weights (all layers fine-tuned) is the largest single gain: \textbf{93.7$\pm$0.5\%} at peak lr $10^{-4}$ vs.\ 83.5\% from scratch (+10.2); larger lrs are worse (92.5 / 90.6\%).
-
-\begin{table}[h]
-\centering
-\small
-\caption{Experimental journey (val.\ accuracy \%, mean$\pm$std, 3 seeds); each row builds on the one above. \emph{Best ep.}: max over epochs; \emph{Last-10}: mean of the final 10 epochs (selection metric).}
-\label{tab:journey}
-\begin{tabular}{lccl}
-\toprule
-Experiment & Best ep. & Last-10 & Observation \\
-\midrule
-Starter TNet ($64^2$, gray, 20 ep.) & 49.6$\pm$0.8 & 46.9$\pm$1.4 & Overfits after epoch ${\sim}7$ \\
-+ translation (Exp.~1) & 54.0$\pm$1.6 & 51.0$\pm$1.2 & Rotation/jitter/erasing: no gain \\
-+ flip + RRC, 100 epochs (Exp.~1b) & 63.7$\pm$1.5 & 60.5$\pm$1.1 & Translation alone: 58.4 (overfits again) \\
-+ cosine lr $5\times10^{-3}$, 200 ep.\ (Exp.~2) & 66.3$\pm$1.5 & 65.2$\pm$0.9 & Constant lr, 600 ep.: 64.3 \\
-+ input $200^2$ (Exp.~3) & 69.7$\pm$1.4 & 68.3$\pm$0.2 & $224^2$: 67.0; $256^2$: 61.9 \\
-+ EfficientNet-B0 (Exp.~4) & 85.0$\pm$0.2 & 83.5$\pm$0.5 & ResNet-50 83.5; ConvNeXt-T 74.5 \\
-\quad + rotation SSL, $\lambda=1$ (Exp.~6) & 85.8$\pm$1.0 & 84.4$\pm$0.9 & Within noise, $2\times$ cost \\
-+ ImageNet init., lr $10^{-4}$ (Exp.~9) & 94.7$\pm$0.7 & \textbf{93.7$\pm$0.5} & lr $10^{-3}$: 92.5; $5\times10^{-3}$: 90.6 \\
-\bottomrule
-\end{tabular}
-\vspace{-0.2cm}
-\end{table}
+\textbf{Code and checkpoints.} The code is on \href{https://github.com/sasukepn1999/itcs6169-assignment1}{GitHub} and the checkpoints on \href{https://drive.google.com/drive/folders/1q_nvnQqREGNsdmdg47nAFXf_cUVyYREe?usp=sharing}{Google Drive}. We provide two versions of the final model with the same recipe: the \emph{clean-test} version, trained on train+val, gives the test accuracy above, while the \emph{submitted} version is also trained on the labelled test images and produces our \texttt{test2} predictions (it has no test score, since no labelled image is left).
 
 \section{Our Secret Recipe}
 \label{sec:recipe}
 
-EfficientNet-B0 (4.0M parameters) initialised from \textbf{ImageNet-1k} (torchvision \texttt{IMAGENET1K\_V1}), all layers fine-tuned, new 16-way head; $200\times200$ grayscale replicated to 3 channels, ImageNet normalisation; random-resized crop (scale 0.5--1) + reflect-pad translation ($s/8$) + horizontal flip; Adam, peak lr $10^{-4}$, per-iteration cosine decay to 0; batch 64; 200 epochs; cross-entropy; \textbf{FixMatch} on the unlabelled \texttt{test2} images (pseudo-label threshold 0.95, $\lambda_u=1$, strong view: RandAugment(2,\,10) + Cutout; 64 + 64 images per step); final-epoch weights. \textbf{What mattered} (Table~\ref{tab:journey}): ImageNet initialisation (+10.2), a deeper CNN (+15.2 over TNet), augmentation with longer training (+15.9 for TNet), a cosine schedule (+2.4), and, on test (Exp.~8), more labels (+3.1) and FixMatch (+2.1). Grayscale inputs avoid a colour shortcut (Sec.~\ref{sec:failure}).
+Our final model is an EfficientNet-B0~\cite{efficientnet} initialised from ImageNet-1k~\cite{imagenet} weights. We replace the last linear layer with a 16-way classifier and fine-tune all layers. The network takes $200\times200$ grayscale images, replicated to three channels and normalised with the ImageNet statistics. During training, we apply random-resized cropping, random translation and horizontal flipping. We train for 200 epochs with Adam (batch size 64), with a peak learning rate of $10^{-4}$ that decays to zero with a cosine schedule, and keep the last-epoch weights. In addition to the cross-entropy loss on labelled images, we apply FixMatch~\cite{fixmatch} on the unlabelled \texttt{test2} images: the prediction on a weakly augmented view becomes a pseudo-label when its confidence exceeds 0.95, and the model learns to predict this label on a strongly augmented view (RandAugment~\cite{randaugment} and Cutout~\cite{cutout}).
+
+\textbf{Which choices mattered?} As shown in Table~\ref{tab:journey}, three choices account for most of the improvement: data augmentation combined with longer training, which removes the overfitting of the baseline (+16 points), a deeper network (+15 points) and ImageNet pretraining (+10 points). More labels and FixMatch add a few more points. Finally, we keep every input in grayscale to avoid a colour shortcut (Sec.~\ref{sec:failure}).
+
+\section{Experimental Journey}
+\label{sec:journey}
+
+\textbf{Dataset.} The dataset is balanced (150 training and 25 test images per class), so no re-balancing is needed. Two observations shaped our design: images are much larger than the $64\times64$ input of the starter network, and Flower is the only class stored in colour, so a model could recognise it from colour alone.
+
+\textbf{Baseline.} The starter network (one convolution layer, 58K parameters) reaches 49.6\% validation and 42.3\% test accuracy. Its training loss drops to 0.12 while the validation loss rises after six epochs, so we first tackle overfitting.
+
+\textbf{Augmentation and training length.} We add standard augmentations one at a time. Random translation helps the most and almost closes the gap between training and validation loss, while random-resized cropping and flipping help less. In contrast, rotation, colour jitter and random erasing do not help. Since the model is then still improving at the end of training, we combine the three useful augmentations and train longer, until accuracy saturates at about 200 epochs.
+
+\textbf{Learning-rate schedule.} With a constant learning rate, the model still improves slowly after 500 epochs, which suggests decreasing the learning rate during training. A cosine schedule with a larger peak learning rate ($5\times10^{-3}$) reaches higher accuracy in 200 epochs than a constant one in 600.
+
+\textbf{Resolution.} Larger inputs help the starter network, and $200\times200$ gives the best accuracy. Interestingly, $256\times256$ was the best size before we fixed overfitting but the worst afterwards.
+
+\textbf{Architecture.} At this point, the training loss of the starter network stays near 1.0, i.e., the network is too small to fit the augmented data. We therefore compare seven standard CNNs trained from scratch. All reach 81--84\% except ConvNeXt-Tiny~\cite{convnext} (74.5\%), which likely needs more data. We keep EfficientNet-B0, which matches ResNet-50~\cite{resnet} with $6\times$ fewer parameters.
+
+\textbf{Self-supervised learning.} Since the deeper networks overfit again, we add a self-supervised loss as a regulariser: rotation prediction~\cite{rotnet}, SimCLR~\cite{simclr}, SimSiam~\cite{simsiam} or masked image modelling~\cite{mae}. None of them clearly helps, whether applied to the training or the validation images.
+
+\textbf{More labels and FixMatch.} On the test set, training EfficientNet-B0 (from scratch) on train+val instead of the training split alone improves test accuracy from 81.8\% to 84.8\%. FixMatch on the unlabelled test images further reaches 86.9\%, although its pseudo-label accuracy drops from 95\% to 87\% late in training (confirmation bias).
+
+\textbf{ImageNet pretraining.} Finally, initialising EfficientNet-B0 from ImageNet weights gives the largest single gain, from 83.5\% to 93.7\%. A small learning rate ($10^{-4}$) works best, while larger ones degrade accuracy, probably because they overwrite the pretrained features.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Validation accuracy (\%) as each change is added. \emph{Last-10}: average of the last 10 epochs, used for selection.}
+\label{tab:journey}
+\begin{tabular}{lccl}
+\toprule
+Experiment & Best & Last-10 & Observation \\
+\midrule
+Starter network ($64^2$, 20 epochs) & 49.6$\pm$0.8 & 46.9$\pm$1.4 & Overfits after ${\sim}$6 epochs \\
++ Random translation & 54.0$\pm$1.6 & 51.0$\pm$1.2 & Rotation, jitter, erasing: no gain \\
++ Crop and flip, 100 epochs & 63.7$\pm$1.5 & 60.5$\pm$1.1 & Still improving \\
++ Cosine schedule, 200 epochs & 66.3$\pm$1.5 & 65.2$\pm$0.9 & Constant lr at 600 epochs: 64.3 \\
++ Input $200\times200$ & 69.7$\pm$1.4 & 68.3$\pm$0.2 & $256\times256$: 61.9 \\
++ EfficientNet-B0 (from scratch) & 85.0$\pm$0.2 & 83.5$\pm$0.5 & ResNet-50: 83.5; ConvNeXt-T: 74.5 \\
++ ImageNet pretraining & 94.7$\pm$0.7 & \textbf{93.7$\pm$0.5} & Larger learning rates: 90.6--92.5 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Failure Analysis}
 \label{sec:failure}
 
-\textbf{Keeping colour for the colour images (Exp.~5).} \emph{Tried:} keep the originally-RGB images (only Flower) in colour. \emph{Why:} colour is genuine flower information. \emph{What happened:} validation accuracy fell (EfficientNet-B0 83.5$\to$80.9\%, ResNet-50 83.5$\to$82.8\%), and Flower accuracy did not improve (91.4\% gray vs.\ 90.3 / 84.9\%). Shown in gray at test time, Flower images are recognised only 25.8 / 18.3\% of the time (gray models: unchanged), and gray images are almost never called Flower (0.07 vs.\ 0.5\%): the models learned ``colour $\Rightarrow$ Flower'', which would pass our test set (Flower is again the only colour class) but fail on gray flowers. \emph{Learned:} a nuisance attribute perfectly correlated with one label must be removed or probed; accuracy alone can hide a shortcut.
+\textbf{Keeping the colour of the Flower images.} We tried to keep the Flower images in colour, expecting colour to help recognise flowers. Surprisingly, validation accuracy decreased (from 83.5\% to 80.9\% for EfficientNet-B0), and even the accuracy on Flower did not improve. When we converted the Flower validation images to grayscale at test time, the colour model recognised only 26\% of them (vs.\ 90\% in colour), while the grayscale model was unaffected: the model learned the shortcut ``colour means Flower'' instead of what flowers look like. This shortcut would not hurt our test score, since Flower is also the only colour class in the test set, but it would fail on grayscale flowers. We learned that accuracy alone can hide such a shortcut.
 
 \section{AI + Human}
 \label{sec:ai}
 
 \emph{AI help:} Claude Code help implement all the experiments and draft report. \emph{Human judgement:} I am mainly responsible for designing experiments and hypothesis based on what I observe on the results (e.g., loss curve) and my experience. Details in \texttt{AI\_USAGE.md}.
+
+
+{\small
+\begin{thebibliography}{99}
+\setlength{\itemsep}{0pt}
+\bibitem{efficientnet} M. Tan and Q. V. Le. EfficientNet: Rethinking model scaling for convolutional neural networks. In \emph{ICML}, 2019.
+\bibitem{imagenet} J. Deng, W. Dong, R. Socher, L.-J. Li, K. Li, and L. Fei-Fei. ImageNet: A large-scale hierarchical image database. In \emph{CVPR}, 2009.
+\bibitem{fixmatch} K. Sohn, D. Berthelot, C.-L. Li, Z. Zhang, N. Carlini, E. D. Cubuk, A. Kurakin, H. Zhang, and C. Raffel. FixMatch: Simplifying semi-supervised learning with consistency and confidence. In \emph{NeurIPS}, 2020.
+\bibitem{randaugment} E. D. Cubuk, B. Zoph, J. Shlens, and Q. V. Le. RandAugment: Practical automated data augmentation with a reduced search space. In \emph{CVPR Workshops}, 2020.
+\bibitem{cutout} T. DeVries and G. W. Taylor. Improved regularization of convolutional neural networks with Cutout. \emph{arXiv:1708.04552}, 2017.
+\bibitem{resnet} K. He, X. Zhang, S. Ren, and J. Sun. Deep residual learning for image recognition. In \emph{CVPR}, 2016.
+\bibitem{convnext} Z. Liu, H. Mao, C.-Y. Wu, C. Feichtenhofer, T. Darrell, and S. Xie. A ConvNet for the 2020s. In \emph{CVPR}, 2022.
+\bibitem{rotnet} S. Gidaris, P. Singh, and N. Komodakis. Unsupervised representation learning by predicting image rotations. In \emph{ICLR}, 2018.
+\bibitem{simclr} T. Chen, S. Kornblith, M. Norouzi, and G. Hinton. A simple framework for contrastive learning of visual representations. In \emph{ICML}, 2020.
+\bibitem{simsiam} X. Chen and K. He. Exploring simple Siamese representation learning. In \emph{CVPR}, 2021.
+\bibitem{mae} K. He, X. Chen, S. Xie, Y. Li, P. Doll\'ar, and R. Girshick. Masked autoencoders are scalable vision learners. In \emph{CVPR}, 2022.
+\end{thebibliography}
+}
 
 \end{document}
