@@ -1,0 +1,31 @@
+{
+  "pretrained_lr": 0.0001,
+  "clean_test_acc": [
+    93.5,
+    92.0,
+    93.75
+  ],
+  "clean_test_per_class": {
+    "Bedroom": 96.0,
+    "Coast": 98.66666666666667,
+    "Flower": 100.0,
+    "Forest": 85.33333333333334,
+    "Highway": 100.0,
+    "Industrial": 92.0,
+    "InsideCity": 78.66666666666667,
+    "Kitchen": 89.33333333333334,
+    "LivingRoom": 92.0,
+    "Mountain": 76.00000000000001,
+    "Office": 100.0,
+    "OpenCountry": 90.66666666666667,
+    "Store": 93.33333333333333,
+    "Street": 100.0,
+    "Suburb": 100.0,
+    "TallBuilding": 97.33333333333333
+  },
+  "final_checkpoints": [
+    "results/runs/final_recipe/6c8865075b_s0.pt",
+    "results/runs/final_recipe/6c8865075b_s1.pt",
+    "results/runs/final_recipe/6c8865075b_s2.pt"
+  ]
+}

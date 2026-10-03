@@ -1,0 +1,20 @@
+{
+  "test_acc_no_unlabelled": [
+    83.25,
+    85.0,
+    86.25
+  ],
+  "test_acc_fixmatch_on_test": [
+    88.25,
+    87.5,
+    85.0
+  ],
+  "checkpoints": [
+    "results/runs/pilot_trainval/3c3c0eae11_s0.pt",
+    "results/runs/pilot_trainval/3c3c0eae11_s1.pt",
+    "results/runs/pilot_trainval/3c3c0eae11_s2.pt",
+    "results/runs/pilot_trainval/0f8baf574a_s0.pt",
+    "results/runs/pilot_trainval/0f8baf574a_s1.pt",
+    "results/runs/pilot_trainval/0f8baf574a_s2.pt"
+  ]
+}

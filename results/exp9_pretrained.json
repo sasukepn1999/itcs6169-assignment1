@@ -1,0 +1,95 @@
+[
+  {
+    "experiment": "none (Exp. 4)",
+    "val_acc_mean": 85.0,
+    "val_acc_std": 0.17010345435993907,
+    "per_seed": [
+      85.21,
+      85.0,
+      84.79
+    ],
+    "best_epochs": [
+      182,
+      158,
+      130
+    ],
+    "params": 4028044,
+    "time_s_per_run": 787.7871172428131,
+    "ssl": "none",
+    "ssl_weight": 0.0,
+    "val_acc_last10": 83.54166666666667,
+    "val_acc_last10_std": 0.5190246372515317,
+    "final_train_loss": 0.02158717073131508,
+    "final_val_loss": 0.9124152170287237,
+    "final_ssl_loss": null
+  },
+  {
+    "experiment": "pretrained lr=0.0001",
+    "val_acc_mean": 94.72222222222223,
+    "val_acc_std": 0.7081971546656661,
+    "per_seed": [
+      93.75,
+      95.42,
+      95.0
+    ],
+    "best_epochs": [
+      93,
+      22,
+      59
+    ],
+    "params": 4028044,
+    "time_s_per_run": 1004.3511850833893,
+    "lr": 0.0001,
+    "val_acc_last10": 93.68055555555556,
+    "val_acc_last10_std": 0.4721200869939859,
+    "final_train_loss": 0.003558429569077109,
+    "final_val_loss": 0.23926362527741327,
+    "final_ssl_loss": null
+  },
+  {
+    "experiment": "pretrained lr=0.001",
+    "val_acc_mean": 93.95833333333333,
+    "val_acc_std": 0.17010345435994484,
+    "per_seed": [
+      93.96,
+      94.17,
+      93.75
+    ],
+    "best_epochs": [
+      106,
+      160,
+      119
+    ],
+    "params": 4028044,
+    "time_s_per_run": 1006.4623788197836,
+    "lr": 0.001,
+    "val_acc_last10": 92.47222222222223,
+    "val_acc_last10_std": 0.5917872855663866,
+    "final_train_loss": 0.0009750483960386998,
+    "final_val_loss": 0.34877113799254095,
+    "final_ssl_loss": null
+  },
+  {
+    "experiment": "pretrained lr=0.005",
+    "val_acc_mean": 92.63888888888887,
+    "val_acc_std": 0.7081971546656679,
+    "per_seed": [
+      91.67,
+      92.92,
+      93.33
+    ],
+    "best_epochs": [
+      70,
+      143,
+      129
+    ],
+    "params": 4028044,
+    "time_s_per_run": 974.9440624713898,
+    "lr": 0.005,
+    "val_acc_last10": 90.63194444444444,
+    "val_acc_last10_std": 1.0364219819607048,
+    "final_train_loss": 0.004364826836273197,
+    "final_val_loss": 0.5075714925924937,
+    "final_ssl_loss": null
+  }
+]
