@@ -1,0 +1,28 @@
+{
+  "experiment": "final_recipe",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "description": "Clean test estimate of the final recipe: supervised on train+val, FixMatch on test2, evaluate on test.",
+  "config": {
+    "model": "efficientnet_b0",
+    "img_size": 200,
+    "augment": [
+      "hflip",
+      "rrc",
+      "translate"
+    ],
+    "schedule": "cosine",
+    "epochs": 200,
+    "amp": true,
+    "pretrained": true,
+    "lr": 0.0001,
+    "ssl": "fixmatch",
+    "ssl_weight": 1.0,
+    "ssl_source": "test2",
+    "fixmatch_tau": 0.95,
+    "train_on": "trainval"
+  }
+}

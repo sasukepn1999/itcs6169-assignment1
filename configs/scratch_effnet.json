@@ -1,0 +1,22 @@
+{
+  "experiment": "final",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "description": "EfficientNet-B0 from scratch selected on validation (Experiment 4): 83.5% val (last-10), 81.8% test.",
+  "config": {
+    "model": "efficientnet_b0",
+    "img_size": 200,
+    "augment": [
+      "hflip",
+      "rrc",
+      "translate"
+    ],
+    "schedule": "cosine",
+    "epochs": 200,
+    "amp": true,
+    "lr": 0.005
+  }
+}

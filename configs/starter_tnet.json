@@ -1,0 +1,8 @@
+{
+  "experiment": "exp1_augmentation",
+  "seeds": [
+    0
+  ],
+  "description": "Starter TNet baseline (64x64 gray, Adam 2e-3, 20 epochs): 49.79% val.",
+  "config": {}
+}
