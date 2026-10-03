@@ -1,0 +1,10 @@
+# dataset (download separately, see README)
+data/
+# model checkpoints are large: published as a GitHub Release instead
+*.pt
+results/runs/_smoke/
+__pycache__/
+.ipynb_checkpoints/
+results/*.log
+# course handout (instructor material)
+ITCS_6169*8169_Assignment1.pdf
